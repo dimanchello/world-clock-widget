@@ -1,0 +1,10 @@
+{
+	"id": "world-clock-widget",
+	"name": "World Clock Widget",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "Виджет мировых часов: показывает время коллег в разных часовых поясах, рабочие часы и статус занятости.",
+	"author": "Your Name",
+	"authorUrl": "",
+	"isDesktopOnly": false
+}

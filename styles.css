@@ -1,0 +1,227 @@
+/* ─────────────────────────────────────────────────────────────────
+   World Clock Widget — styles.css
+   Использует CSS-переменные Obsidian для поддержки тёмной/светлой
+   темы и акцентного цвета автоматически.
+   ───────────────────────────────────────────────────────────────── */
+
+/* ── Container ──────────────────────────────────────────────────── */
+.wc-root {
+	padding: 10px 8px 20px;
+	height: 100%;
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+
+/* ── Empty state ────────────────────────────────────────────────── */
+.wc-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 48px 20px;
+	text-align: center;
+	color: var(--text-muted);
+}
+.wc-empty-icon  { font-size: 2.8em; line-height: 1; }
+.wc-empty-title { font-size: var(--font-ui-medium); font-weight: 600; color: var(--text-normal); }
+.wc-empty-hint  { font-size: var(--font-ui-small); color: var(--text-faint); max-width: 200px; }
+
+/* ── Card list ──────────────────────────────────────────────────── */
+.wc-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+/* ── Single card ────────────────────────────────────────────────── */
+.wc-card {
+	position: relative;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 10px;
+	padding: 10px 14px 12px 34px; /* left padding for drag handle */
+	cursor: default;
+	transition: border-color 0.15s, box-shadow 0.15s, opacity 0.15s;
+	user-select: none;
+}
+
+.wc-card:hover {
+	border-color: var(--color-accent);
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+}
+
+/* ── Drag states ────────────────────────────────────────────────── */
+.wc-drag-handle {
+	position: absolute;
+	left: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--text-faint);
+	font-size: 1.1em;
+	cursor: grab;
+	line-height: 1;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.wc-card:hover .wc-drag-handle { opacity: 1; }
+
+.wc-card.wc-dragging {
+	opacity: 0.35;
+	cursor: grabbing;
+	box-shadow: none;
+}
+
+.wc-card.wc-drag-over {
+	border-color: var(--color-accent);
+	border-style: dashed;
+	box-shadow: 0 0 0 2px rgba(var(--color-accent-rgb, 99, 102, 241), 0.25);
+}
+
+/* ── Card header: name + UTC offset ────────────────────────────── */
+.wc-header {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	margin-bottom: 2px;
+}
+
+.wc-name {
+	font-size: var(--font-ui-medium);
+	font-weight: 600;
+	color: var(--text-normal);
+	flex: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.wc-offset {
+	font-size: 11px;
+	color: var(--text-faint);
+	flex-shrink: 0;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ── Big time display ───────────────────────────────────────────── */
+.wc-time {
+	font-size: 2.05em;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	color: var(--color-accent);
+	line-height: 1.15;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum";
+}
+
+/* ── Date row ───────────────────────────────────────────────────── */
+.wc-date {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	margin-bottom: 4px;
+	text-transform: capitalize;
+}
+
+/* ── Work hours + status ────────────────────────────────────────── */
+.wc-work {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 7px;
+	padding-top: 7px;
+	border-top: 1px solid var(--background-modifier-border);
+	flex-wrap: wrap;
+}
+
+.wc-work-hours {
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.wc-status {
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	transition: color 0.3s;
+}
+
+.wc-status.wc-on  { color: #22c55e; } /* зелёный — работает */
+.wc-status.wc-off { color: var(--text-faint); } /* серый — не работает */
+
+/* ─────────────────────────────────────────────────────────────────
+   Modal
+   ───────────────────────────────────────────────────────────────── */
+.wc-modal .modal-content { padding: 20px 24px 24px; }
+
+.wc-modal-section-label {
+	font-size: var(--font-ui-small);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+	padding: 14px 0 2px;
+	margin: 0;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.wc-modal-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 18px;
+	padding-top: 14px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Settings tab extras
+   ───────────────────────────────────────────────────────────────── */
+.wc-settings-empty {
+	color: var(--text-muted);
+	font-style: italic;
+	padding: 12px 0;
+}
+
+.wc-settings-hint {
+	font-size: var(--font-ui-small);
+	color: var(--text-faint);
+	margin: -6px 0 14px;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Notification toggles in modal
+   ───────────────────────────────────────────────────────────────── */
+
+/* Секция уведомлений — нормальное состояние */
+.wc-notify-section { transition: opacity 0.2s; }
+
+/* Когда рабочее время не заполнено — секция блёкнет */
+.wc-notify-section.wc-notify-disabled {
+	opacity: 0.4;
+	pointer-events: none; /* клики всё равно заблокированы */
+}
+
+.wc-notify-section.wc-notify-disabled .wc-modal-section-label::after {
+	content: " — укажите рабочее время";
+	font-weight: 400;
+	font-style: italic;
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Notification badges on clock cards
+   ───────────────────────────────────────────────────────────────── */
+.wc-notify-badges {
+	display: inline-flex;
+	gap: 3px;
+	align-items: center;
+	margin-left: 2px;
+}
+
+.wc-badge {
+	font-size: 10px;
+	line-height: 1;
+	opacity: 0.65;
+	cursor: default;
+}
