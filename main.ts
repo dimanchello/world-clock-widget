@@ -281,8 +281,8 @@ function crossedTargetMinute(prev: number, now: number, target: number, dayChang
 
 class ClockEditModal extends Modal {
 	private draft: Partial<ClockEntry>;
-	private onSave: (entry: ClockEntry) => void;
-	private isEdit: boolean;
+	private readonly onSave: (entry: ClockEntry) => void;
+	private readonly isEdit: boolean;
 
 	// Ссылки для динамического управления секцией уведомлений
 	private notifySection!: HTMLElement;
@@ -803,12 +803,12 @@ export default class WorldClockPlugin extends Plugin {
 
 	async activateView() {
 		const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_WORLD_CLOCK);
-		if (existing.length) { this.app.workspace.revealLeaf(existing[0]); return; }
+		if (existing.length) { await this.app.workspace.revealLeaf(existing[0]); return; }
 
 		const leaf = this.app.workspace.getRightLeaf(false);
 		if (leaf) {
 			await leaf.setViewState({ type: VIEW_TYPE_WORLD_CLOCK, active: true });
-			this.app.workspace.revealLeaf(leaf);
+			await this.app.workspace.revealLeaf(leaf);
 		}
 	}
 
