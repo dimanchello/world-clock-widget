@@ -1,10 +1,10 @@
 {
-	"id": "world-clock-widget",
-	"name": "World Clock Widget",
+	"id": "obsidian-world-clock-widget",
+	"name": "Obsidian World Clock Widget",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Виджет мировых часов: показывает время коллег в разных часовых поясах, рабочие часы и статус занятости.",
-	"author": "Your Name",
+	"description": "World clocks widget: shows colleagues' time in different timezones, work hours, and availability status.",
+	"author": "Dimanchello",
 	"authorUrl": "",
 	"isDesktopOnly": false
 }

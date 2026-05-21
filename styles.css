@@ -159,7 +159,7 @@
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	color: var(--text-muted);
-	padding: 14px 0 2px;
+	padding: 16px 0 8px;
 	margin: 0;
 	border-top: 1px solid var(--background-modifier-border);
 }
@@ -171,6 +171,70 @@
 	margin-top: 18px;
 	padding-top: 14px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+/* ── 2-column rows in modal ─────────────────────────────────────── */
+.wc-modal-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	margin-bottom: 4px;
+}
+
+.wc-modal-col .setting-item {
+	flex-wrap: nowrap;
+	padding: 6px 0;
+}
+
+.wc-modal-col .setting-item-name {
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	color: var(--text-normal);
+}
+
+.wc-modal-col .setting-item-description {
+	font-size: 11px;
+	color: var(--text-faint);
+}
+
+.wc-modal-col .setting-item-control {
+	flex-shrink: 0;
+}
+
+/* ── Styled timepicker ──────────────────────────────────────────── */
+.wc-modal-col input[type="time"] {
+	width: 100%;
+	min-width: 0;
+	padding: 6px 10px;
+	font-size: var(--font-ui-medium);
+	font-family: var(--font-monospace);
+	font-variant-numeric: tabular-nums;
+	color: var(--text-normal);
+	background: var(--background-modifier-form-field);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	outline: none;
+	transition: border-color 0.15s, box-shadow 0.15s;
+	cursor: pointer;
+}
+
+.wc-modal-col input[type="time"]:hover {
+	border-color: var(--background-modifier-border-hover);
+}
+
+.wc-modal-col input[type="time"]:focus {
+	border-color: var(--color-accent);
+	box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+.wc-modal-col input[type="time"]::-webkit-calendar-picker-indicator {
+	opacity: 0.5;
+	cursor: pointer;
+	filter: var(--icon-color-filter, none);
+}
+
+.wc-modal-col input[type="time"]::-webkit-calendar-picker-indicator:hover {
+	opacity: 1;
 }
 
 /* ─────────────────────────────────────────────────────────────────
