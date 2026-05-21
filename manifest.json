@@ -5,6 +5,6 @@
 	"minAppVersion": "1.0.0",
 	"description": "World clocks widget: shows colleagues' time in different timezones, work hours, and availability status.",
 	"author": "Dimanchello",
-	"authorUrl": "",
+	"authorUrl": "https://github.com/dimanchello/",
 	"isDesktopOnly": false
 }
