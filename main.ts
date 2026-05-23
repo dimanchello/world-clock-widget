@@ -1,16 +1,20 @@
-import {
+import type {
 	App,
+	ToggleComponent,
+	WorkspaceLeaf} from "obsidian";
+import {
 	ItemView,
 	Modal,
 	Notice,
 	Plugin,
 	PluginSettingTab,
-	Setting,
-	WorkspaceLeaf,
+	Setting
 } from "obsidian";
-import { getLocale, Locale, t, Translations } from "./i18n";
+import type { Locale, Translations } from "./i18n";
+import { getLocale, t } from "./i18n";
+import type {
+	ClockEntry} from "./helpers";
 import {
-	ClockEntry,
 	generateId,
 	parseHHMMToMinutes,
 	currentMinutes,
@@ -158,22 +162,21 @@ interface WorldClockSettings {
 	clocks: ClockEntry[];
 }
 
-const DEFAULT_SETTINGS: WorldClockSettings = { clocks: [] };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Modal — Add / Edit Clock
 // ─────────────────────────────────────────────────────────────────────────────
 
 class ClockEditModal extends Modal {
-	private draft: Partial<ClockEntry>;
+	private readonly draft: Partial<ClockEntry>;
 	private readonly onSave: (entry: ClockEntry) => void;
 	private readonly isEdit: boolean;
 	private readonly locale: Locale;
 	private readonly tr: Translations;
 
 	private notifySection!: HTMLElement;
-	private notifyStartToggle!: HTMLElement;
-	private notifyEndToggle!: HTMLElement;
+	private notifyStartToggle!: ToggleComponent;
+	private notifyEndToggle!: ToggleComponent;
 
 	constructor(app: App, entry: Partial<ClockEntry>, onSave: (entry: ClockEntry) => void) {
 		super(app);
@@ -184,7 +187,7 @@ class ClockEditModal extends Modal {
 		this.tr = t(this.locale);
 	}
 
-	onOpen() {
+	onOpen(): void {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass("wc-modal");
@@ -196,8 +199,7 @@ class ClockEditModal extends Modal {
 			.setName(this.tr.nameLabel)
 			.setDesc(this.tr.nameDesc)
 			.addText(t => {
-				t.setPlaceholder(this.tr.namePlaceholder)
-				 .setValue(this.draft.name ?? "");
+				t.setPlaceholder(this.tr.namePlaceholder).setValue(this.draft.name ?? "");
 				t.onChange(v => this.draft.name = v);
 				setTimeout(() => t.inputEl.focus(), 50);
 			});
@@ -290,7 +292,7 @@ class ClockEditModal extends Modal {
 		});
 	}
 
-	private buildNotifySection() {
+	private buildNotifySection(): void {
 		const sec = this.notifySection;
 		sec.empty();
 
@@ -307,7 +309,7 @@ class ClockEditModal extends Modal {
 			.setName(this.tr.notifyStartLabel)
 			.setDesc(this.tr.notifyStartDesc);
 		rowStart.addToggle(t => {
-			this.notifyStartToggle = t.toggleEl;
+			this.notifyStartToggle = t;
 			t.setValue(this.draft.notifyStart ?? false);
 			t.onChange(v => this.draft.notifyStart = v);
 		});
@@ -316,32 +318,30 @@ class ClockEditModal extends Modal {
 			.setName(this.tr.notifyEndLabel)
 			.setDesc(this.tr.notifyEndDesc);
 		rowEnd.addToggle(t => {
-			this.notifyEndToggle = t.toggleEl;
+			this.notifyEndToggle = t;
 			t.setValue(this.draft.notifyEnd ?? false);
 			t.onChange(v => this.draft.notifyEnd = v);
 		});
 	}
 
-	private syncNotifySection() {
+	private syncNotifySection(): void {
 		const hasStart = !!this.draft.workStart;
 		const hasEnd = !!this.draft.workEnd;
-		const hasAnyWorkTime = hasStart || hasEnd;
-		this.notifySection.toggleClass("wc-notify-disabled", !hasAnyWorkTime);
 
-		(this.notifyStartToggle as HTMLInputElement).disabled = !hasStart;
-		(this.notifyEndToggle as HTMLInputElement).disabled   = !hasEnd;
+		this.notifyStartToggle.setDisabled(!hasStart);
+		this.notifyEndToggle.setDisabled(!hasEnd);
 
 		if (!hasStart) {
-			(this.notifyStartToggle as HTMLInputElement).checked = false;
+			this.notifyStartToggle.setValue(false);
 			this.draft.notifyStart = false;
 		}
 		if (!hasEnd) {
-			(this.notifyEndToggle as HTMLInputElement).checked   = false;
-			this.draft.notifyEnd   = false;
+			this.notifyEndToggle.setValue(false);
+			this.draft.notifyEnd = false;
 		}
 	}
 
-	onClose() { this.contentEl.empty(); }
+	onClose(): void { this.contentEl.empty(); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -362,14 +362,16 @@ class WorldClockView extends ItemView {
 		this.tr = t(this.locale);
 	}
 
-	getViewType()    { return VIEW_TYPE_WORLD_CLOCK; }
-	getDisplayText() { return this.tr.viewTitle; }
-	getIcon()        { return "clock"; }
+	getViewType(): string { return VIEW_TYPE_WORLD_CLOCK; }
+	getDisplayText(): string { return this.tr.viewTitle; }
+	getIcon(): string        { return "clock"; }
 
-	async onOpen()  { this.render(); this.ticker = window.setInterval(() => this.tick(), 1000); }
-	async onClose() { if (this.ticker !== null) { window.clearInterval(this.ticker); this.ticker = null; } }
+	// eslint-disable-next-line @typescript-eslint/require-await
+	async onOpen(): Promise<void>  { this.render(); this.ticker = window.setInterval(() => this.tick(), 1000); }
+	// eslint-disable-next-line @typescript-eslint/require-await
+	async onClose(): Promise<void> { if (this.ticker !== null) { window.clearInterval(this.ticker); this.ticker = null; } }
 
-	render() {
+	render(): void {
 		const root = this.containerEl.children[1] as HTMLElement;
 		root.empty();
 		root.className = "wc-root";
@@ -380,7 +382,7 @@ class WorldClockView extends ItemView {
 
 		if (sorted.length === 0) {
 			const empty = root.createDiv("wc-empty");
-			empty.createEl("div", { cls: "wc-empty-icon", text: "🕐" });
+			empty.createEl("div", { cls: "wc-empty-icon" }).setText("🕐");
 			empty.createEl("div", { cls: "wc-empty-title", text: this.tr.emptyTitle });
 			empty.createEl("div", { cls: "wc-empty-hint",  text: this.tr.emptyHint });
 			return;
@@ -400,7 +402,7 @@ class WorldClockView extends ItemView {
 			const hdr = card.createDiv("wc-header");
 			hdr.createDiv({ cls: "wc-name", text: clock.name });
 			const off = computeUtcOffset(clock.timezone);
-			if (off) hdr.createDiv({ cls: "wc-offset", text: off });
+			if (off) {hdr.createDiv({ cls: "wc-offset", text: off });}
 
 			const timeEl = card.createDiv("wc-time");
 			timeEl.dataset.wcTime = clock.id;
@@ -418,8 +420,8 @@ class WorldClockView extends ItemView {
 
 				if (clock.notifyStart || clock.notifyEnd) {
 					const badges = workRow.createSpan("wc-notify-badges");
-					if (clock.notifyStart) badges.createSpan({ cls: "wc-badge", text: this.tr.notifyStartBadge }).title = this.tr.notifyStartLabel;
-					if (clock.notifyEnd)   badges.createSpan({ cls: "wc-badge", text: this.tr.notifyEndBadge }).title = this.tr.notifyEndLabel;
+					if (clock.notifyStart) {badges.createSpan({ cls: "wc-badge", text: this.tr.notifyStartBadge }).title = this.tr.notifyStartLabel;}
+					if (clock.notifyEnd)   {badges.createSpan({ cls: "wc-badge", text: this.tr.notifyEndBadge }).title = this.tr.notifyEndLabel;}
 				}
 
 				const statusEl = workRow.createSpan("wc-status");
@@ -434,7 +436,7 @@ class WorldClockView extends ItemView {
 		clock: ClockEntry,
 		sorted: ClockEntry[],
 		list: HTMLElement,
-	) {
+	): void {
 		card.addEventListener("dragstart", e => {
 			this.dragSrcId = clock.id;
 			card.addClass("wc-dragging");
@@ -448,51 +450,53 @@ class WorldClockView extends ItemView {
 
 		card.addEventListener("dragover", e => {
 			e.preventDefault();
-			if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-			if (this.dragSrcId !== clock.id) card.addClass("wc-drag-over");
+			if (e.dataTransfer) {e.dataTransfer.dropEffect = "move";}
+			if (this.dragSrcId !== clock.id) {card.addClass("wc-drag-over");}
 		});
 
 		card.addEventListener("dragleave", () => card.removeClass("wc-drag-over"));
 
-		card.addEventListener("drop", async e => {
-			e.preventDefault();
-			card.removeClass("wc-drag-over");
-			if (!this.dragSrcId || this.dragSrcId === clock.id) return;
+		card.addEventListener("drop", e => {
+			void (async () => {
+				e.preventDefault();
+				card.removeClass("wc-drag-over");
+				if (!this.dragSrcId || this.dragSrcId === clock.id) {return;}
 
-			const arr = [...sorted];
-			const si  = arr.findIndex(c => c.id === this.dragSrcId);
-			const di  = arr.findIndex(c => c.id === clock.id);
-			if (si === -1 || di === -1) return;
+				const arr = [...sorted];
+				const si  = arr.findIndex(c => c.id === this.dragSrcId);
+				const di  = arr.findIndex(c => c.id === clock.id);
+				if (si === -1 || di === -1) {return;}
 
-			const [moved] = arr.splice(si, 1);
-			arr.splice(di, 0, moved);
-			arr.forEach((c, i) => {
-				const entry = this.plugin.settings.clocks.find(x => x.id === c.id);
-				if (entry) entry.order = i;
-			});
+				const [moved] = arr.splice(si, 1);
+				arr.splice(di, 0, moved);
+				arr.forEach((c, i) => {
+					const entry = this.plugin.settings.clocks.find(x => x.id === c.id);
+					if (entry) {entry.order = i;}
+				});
 
-			await this.plugin.saveSettings();
-			this.render();
+				await this.plugin.saveSettings();
+				this.render();
+			})();
 		});
 	}
 
-	private tick() {
+	private tick(): void {
 		const now = new Date();
 		for (const clock of this.plugin.settings.clocks.filter(c => c.enabled)) {
 			const t = this.containerEl.querySelector<HTMLElement>(`[data-wc-time="${clock.id}"]`);
-			if (t) t.setText(formatTime(now, clock.timezone, this.locale));
+			if (t) {t.setText(formatTime(now, clock.timezone, this.locale));}
 
 			const d = this.containerEl.querySelector<HTMLElement>(`[data-wc-date="${clock.id}"]`);
-			if (d) d.setText(formatDate(now, clock.timezone, this.locale));
+			if (d) {d.setText(formatDate(now, clock.timezone, this.locale));}
 
 			if (clock.workStart && clock.workEnd) {
 				const s = this.containerEl.querySelector<HTMLElement>(`[data-wc-status="${clock.id}"]`);
-				if (s) this.applyStatus(s, clock);
+				if (s) {this.applyStatus(s, clock);}
 			}
 		}
 	}
 
-	private applyStatus(el: HTMLElement, clock: ClockEntry) {
+	private applyStatus(el: HTMLElement, clock: ClockEntry): void {
 		const on = isWorking(clock);
 		el.className = "wc-status";
 		if (on === true)  { el.setText(this.tr.onWork);   el.addClass("wc-on");  }
@@ -516,7 +520,7 @@ class WorldClockSettingsTab extends PluginSettingTab {
 		this.tr = t(this.locale);
 	}
 
-	display() {
+	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
 		containerEl.createEl("h2", { text: this.tr.settingsTabTitle });
@@ -526,12 +530,14 @@ class WorldClockSettingsTab extends PluginSettingTab {
 			.setDesc(this.tr.emptyHint)
 			.addButton(btn =>
 				btn.setButtonText(this.tr.btnAdd).setCta().onClick(() => {
-					new ClockEditModal(this.app, {}, async entry => {
-						entry.order = this.plugin.settings.clocks.length;
-						this.plugin.settings.clocks.push(entry);
-						await this.plugin.saveSettings();
-						this.plugin.refreshView();
-						this.display();
+					new ClockEditModal(this.app, {}, entry => {
+						void (async () => {
+							entry.order = this.plugin.settings.clocks.length;
+							this.plugin.settings.clocks.push(entry);
+							await this.plugin.saveSettings();
+							this.plugin.refreshView();
+							this.display();
+						})();
 					}).open();
 				})
 			);
@@ -568,27 +574,29 @@ class WorldClockSettingsTab extends PluginSettingTab {
 			if (clock.workStart && clock.workEnd) {
 				parts.push(`${this.tr.workDayDesc}: ${clock.workStart}–${clock.workEnd}`);
 				const notifs: string[] = [];
-				if (clock.notifyStart) notifs.push(this.tr.notifyStartBadge + " " + this.tr.notifyStartLabel);
-				if (clock.notifyEnd)   notifs.push(this.tr.notifyEndBadge + " " + this.tr.notifyEndLabel);
-				if (notifs.length)     parts.push(notifs.join(", "));
+				if (clock.notifyStart) {notifs.push(this.tr.notifyStartBadge + " " + this.tr.notifyStartLabel);}
+				if (clock.notifyEnd)   {notifs.push(this.tr.notifyEndBadge + " " + this.tr.notifyEndLabel);}
+				if (notifs.length)     {parts.push(notifs.join(", "));}
 			}
-			if (!clock.enabled) parts.push(this.tr.hiddenDesc);
+			if (!clock.enabled) {parts.push(this.tr.hiddenDesc);}
 			s.setDesc(parts.filter(Boolean).join(" · "));
 
 			s.addButton(btn =>
 				btn.setIcon("pencil").setTooltip(this.tr.btnEditTooltip).onClick(() => {
-					new ClockEditModal(this.app, { ...clock }, async updated => {
-						const idx = this.plugin.settings.clocks.findIndex(c => c.id === clock.id);
-						if (idx !== -1) {
-							this.plugin.settings.clocks[idx] = {
-								...updated,
-								order:   clock.order,
-								enabled: clock.enabled,
-							};
-						}
-						await this.plugin.saveSettings();
-						this.plugin.refreshView();
-						this.display();
+					new ClockEditModal(this.app, { ...clock }, updated => {
+						void (async () => {
+							const idx = this.plugin.settings.clocks.findIndex(c => c.id === clock.id);
+							if (idx !== -1) {
+								this.plugin.settings.clocks[idx] = {
+									...updated,
+									order:   clock.order,
+									enabled: clock.enabled,
+								};
+							}
+							await this.plugin.saveSettings();
+							this.plugin.refreshView();
+							this.display();
+						})();
 					}).open();
 				})
 			);
@@ -619,12 +627,12 @@ export default class WorldClockPlugin extends Plugin {
 	settings: WorldClockSettings = { clocks: [] };
 
 	private notifyInterval: number | null = null;
-	private fired: FiredMap = new Map();
-	private lastSeen: LastSeenMap = new Map();
+	private readonly fired: FiredMap = new Map();
+	private readonly lastSeen: LastSeenMap = new Map();
 	private readonly locale: Locale = getLocale();
 	private readonly tr: Translations = t(getLocale());
 
-	private sendSystemNotification(title: string, body: string) {
+	private sendSystemNotification(title: string, body: string): void {
 		if (typeof window !== "undefined" && "Notification" in window) {
 			if (Notification.permission === "granted") {
 				new Notification(title, { body });
@@ -646,7 +654,7 @@ export default class WorldClockPlugin extends Plugin {
 		new Notice(`${title}: ${body}`, 8000);
 	}
 
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
 
 		this.registerView(VIEW_TYPE_WORLD_CLOCK, leaf => new WorldClockView(leaf, this));
@@ -665,7 +673,7 @@ export default class WorldClockPlugin extends Plugin {
 		this.notifyInterval = window.setInterval(() => this.checkNotifications(), 15_000);
 	}
 
-	onunload() {
+	onunload(): void {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE_WORLD_CLOCK);
 		if (this.notifyInterval !== null) {
 			window.clearInterval(this.notifyInterval);
@@ -673,18 +681,18 @@ export default class WorldClockPlugin extends Plugin {
 		}
 	}
 
-	async loadSettings() {
-		const loaded = await this.loadData();
+	async loadSettings(): Promise<void> {
+		const loaded = await this.loadData() as Record<string, unknown> | null;
 		this.settings = {
-			clocks: Array.isArray(loaded?.clocks) ? loaded.clocks : [],
+			clocks: loaded && Array.isArray(loaded.clocks) ? (loaded.clocks as ClockEntry[]) : [],
 		};
 	}
 
-	async saveSettings() {
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 
-	async activateView() {
+	async activateView(): Promise<void> {
 		const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_WORLD_CLOCK);
 		if (existing.length) { await this.app.workspace.revealLeaf(existing[0]); return; }
 
@@ -695,21 +703,21 @@ export default class WorldClockPlugin extends Plugin {
 		}
 	}
 
-	refreshView() {
+	refreshView(): void {
 		this.app.workspace.getLeavesOfType(VIEW_TYPE_WORLD_CLOCK).forEach(leaf => {
-			if (leaf.view instanceof WorldClockView) leaf.view.render();
+			if (leaf.view instanceof WorldClockView) {leaf.view.render();}
 		});
 	}
 
-	private checkNotifications() {
+	private checkNotifications(): void {
 		for (const clock of this.settings.clocks) {
-			if (!clock.enabled) continue;
-			if (!clock.notifyStart && !clock.notifyEnd) continue;
+			if (!clock.enabled) {continue;}
+			if (!clock.notifyStart && !clock.notifyEnd) {continue;}
 
 			const nowMinutes = currentMinutes(clock.timezone);
-			if (nowMinutes === null) continue;
+			if (nowMinutes === null) {continue;}
 			const dayKey = dayKeyInTimezone(clock.timezone);
-			if (!dayKey) continue;
+			if (!dayKey) {continue;}
 
 			const startKey = `${clock.id}:start`;
 			const endKey   = `${clock.id}:end`;

@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import type {
+	ClockEntry} from "../helpers";
 import {
 	generateId,
 	parseHHMMToMinutes,
@@ -8,10 +10,9 @@ import {
 	computeUtcOffset,
 	isWorking,
 	dayKeyInTimezone,
-	crossedTargetMinute,
-	ClockEntry,
+	crossedTargetMinute
 } from "../helpers";
-import { t, getLocale, Locale } from "../i18n";
+import { t, getLocale } from "../i18n";
 
 // ─── generateId ──────────────────────────────────────────────────────────────
 
@@ -178,13 +179,13 @@ describe("isWorking", () => {
 	it("returns false outside work hours", () => {
 		const clock = makeClock({ workStart: "00:00", workEnd: "00:01" });
 		const result = isWorking(clock);
-		expect(result === true || result === false || result === null).toBe(true);
+		expect([true, false, null]).toContain(result);
 	});
 
 	it("handles night shift (crossing midnight)", () => {
 		const clock = makeClock({ workStart: "22:00", workEnd: "06:00" });
 		const result = isWorking(clock);
-		expect(result === true || result === false || result === null).toBe(true);
+		expect([true, false, null]).toContain(result);
 	});
 });
 

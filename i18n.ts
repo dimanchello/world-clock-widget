@@ -180,13 +180,13 @@ const en: Translations = {
 const translations: Record<Locale, Translations> = { ru, en };
 
 export function t(locale: Locale): Translations {
-	return translations[locale] ?? translations.en;
+	return (translations[locale] as Translations | undefined) ?? translations.en;
 }
 
 export function getLocale(): Locale {
 	if (typeof navigator !== "undefined") {
 		const lang = navigator.language.toLowerCase();
-		if (lang.startsWith("ru")) return "ru";
+		if (lang.startsWith("ru")) {return "ru";}
 	}
 	return "en";
 }

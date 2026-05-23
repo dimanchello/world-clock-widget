@@ -11,5 +11,5 @@
 		"strictNullChecks": true,
 		"lib": ["ES6", "DOM"]
 	},
-	"include": ["*.ts"]
+	"include": ["*.ts", "__tests__/**/*.ts"]
 }

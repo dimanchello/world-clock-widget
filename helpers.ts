@@ -1,4 +1,4 @@
-import { Locale } from "./i18n";
+import type { Locale } from "./i18n";
 
 export interface ClockEntry {
 	id: string;
@@ -18,12 +18,12 @@ export function generateId(): string {
 
 export function parseHHMMToMinutes(value: string): number | null {
 	const m = value.trim().match(/^(\d{1,2}):(\d{2})$/);
-	if (!m) return null;
+	if (!m) {return null;}
 
 	const h = Number(m[1]);
 	const min = Number(m[2]);
-	if (!Number.isInteger(h) || !Number.isInteger(min)) return null;
-	if (h < 0 || h > 23 || min < 0 || min > 59) return null;
+	if (!Number.isInteger(h) || !Number.isInteger(min)) {return null;}
+	if (h < 0 || h > 23 || min < 0 || min > 59) {return null;}
 
 	return h * 60 + min;
 }
@@ -39,11 +39,11 @@ export function currentMinutes(timezone: string): number | null {
 
 		const hourPart = parts.find(p => p.type === "hour")?.value;
 		const minutePart = parts.find(p => p.type === "minute")?.value;
-		if (!hourPart || !minutePart) return null;
+		if (!hourPart || !minutePart) {return null;}
 
 		const h = Number(hourPart);
 		const m = Number(minutePart);
-		if (!Number.isInteger(h) || !Number.isInteger(m)) return null;
+		if (!Number.isInteger(h) || !Number.isInteger(m)) {return null;}
 
 		return h * 60 + m;
 	} catch {
@@ -91,12 +91,12 @@ export function computeUtcOffset(timezone: string): string {
 }
 
 export function isWorking(clock: ClockEntry): boolean | null {
-	if (!clock.workStart || !clock.workEnd) return null;
+	if (!clock.workStart || !clock.workEnd) {return null;}
 	try {
 		const cur = currentMinutes(clock.timezone);
 		const start = parseHHMMToMinutes(clock.workStart);
 		const end = parseHHMMToMinutes(clock.workEnd);
-		if (cur === null || start === null || end === null) return null;
+		if (cur === null || start === null || end === null) {return null;}
 
 		return end >= start
 			? cur >= start && cur < end
@@ -116,7 +116,7 @@ export function dayKeyInTimezone(timezone: string): string {
 		const year = parts.find(p => p.type === "year")?.value;
 		const month = parts.find(p => p.type === "month")?.value;
 		const day = parts.find(p => p.type === "day")?.value;
-		if (!year || !month || !day) return "";
+		if (!year || !month || !day) {return "";}
 
 		return `${year}-${month}-${day}`;
 	} catch {
@@ -125,12 +125,12 @@ export function dayKeyInTimezone(timezone: string): string {
 }
 
 export function crossedTargetMinute(prev: number, now: number, target: number, dayChanged: boolean): boolean {
-	if (prev === now) return false;
+	if (prev === now) {return false;}
 	if (dayChanged) {
 		return target <= now;
 	}
 
-	if (now > prev) return target > prev && target <= now;
+	if (now > prev) {return target > prev && target <= now;}
 
 	return target > prev || target <= now;
 }
