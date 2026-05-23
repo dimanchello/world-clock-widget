@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-world-clock-widget",
 	"name": "Obsidian World Clock Widget",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"minAppVersion": "1.0.0",
 	"description": "World clocks widget: shows colleagues' time in different timezones, work hours, and availability status.",
 	"author": "Dimanchello",
