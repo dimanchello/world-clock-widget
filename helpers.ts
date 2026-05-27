@@ -79,9 +79,17 @@ export function formatDate(date: Date, timezone: string, locale: Locale): string
 export function computeUtcOffset(timezone: string): string {
 	try {
 		const now = new Date();
-		const utc = new Date(now.toLocaleString("en-US", { timeZone: "UTC" }));
-		const tz  = new Date(now.toLocaleString("en-US", { timeZone: timezone }));
-		const diffMin = Math.round((tz.getTime() - utc.getTime()) / 60000);
+		const fmt: Intl.DateTimeFormatOptions = {
+			year: "numeric", month: "2-digit", day: "2-digit",
+			hour: "2-digit", minute: "2-digit",
+			hourCycle: "h23",
+		};
+		const toEpoch = (tz: string): number => {
+			const parts = new Intl.DateTimeFormat("en-US", { ...fmt, timeZone: tz }).formatToParts(now);
+			const g = (type: string): number => Number(parts.find(x => x.type === type)?.value ?? "0");
+			return Date.UTC(g("year"), g("month") - 1, g("day"), g("hour"), g("minute"), 0, 0);
+		};
+		const diffMin = Math.round((toEpoch(timezone) - toEpoch("UTC")) / 60000);
 		const sign = diffMin >= 0 ? "+" : "−";
 		const abs  = Math.abs(diffMin);
 		const h    = Math.floor(abs / 60);
@@ -127,7 +135,7 @@ export function dayKeyInTimezone(timezone: string): string {
 export function crossedTargetMinute(prev: number, now: number, target: number, dayChanged: boolean): boolean {
 	if (prev === now) {return false;}
 	if (dayChanged) {
-		return target <= now;
+		return target > prev || target <= now;
 	}
 
 	if (now > prev) {return target > prev && target <= now;}

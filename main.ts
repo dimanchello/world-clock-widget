@@ -424,7 +424,7 @@ class WorldClockView extends ItemView {
 					if (clock.notifyEnd)   {badges.createSpan({ cls: "wc-badge", text: this.tr.notifyEndBadge }).title = this.tr.notifyEndLabel;}
 				}
 
-				const statusEl = workRow.createSpan("wc-status");
+				const statusEl = card.createDiv("wc-status");
 				statusEl.dataset.wcStatus = clock.id;
 				this.applyStatus(statusEl, clock);
 			}
@@ -603,6 +603,7 @@ class WorldClockSettingsTab extends PluginSettingTab {
 
 			s.addButton(btn =>
 				btn.setIcon("trash").setTooltip(this.tr.btnDeleteTooltip).setWarning().onClick(async () => {
+					this.plugin.removeClockNotifications(clock.id);
 					this.plugin.settings.clocks = this.plugin.settings.clocks.filter(c => c.id !== clock.id);
 					[...this.plugin.settings.clocks]
 						.sort((a, b) => a.order - b.order)
@@ -631,6 +632,12 @@ export default class WorldClockPlugin extends Plugin {
 	private readonly lastSeen: LastSeenMap = new Map();
 	private readonly locale: Locale = getLocale();
 	private readonly tr: Translations = t(getLocale());
+
+	removeClockNotifications(id: string): void {
+		this.fired.delete(`${id}:start`);
+		this.fired.delete(`${id}:end`);
+		this.lastSeen.delete(id);
+	}
 
 	private sendSystemNotification(title: string, body: string): void {
 		if (typeof window !== "undefined" && "Notification" in window) {

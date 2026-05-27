@@ -10,6 +10,7 @@
 	height: 100%;
 	overflow-y: auto;
 	box-sizing: border-box;
+	container-type: inline-size;
 }
 
 /* ── Empty state ────────────────────────────────────────────────── */
@@ -122,13 +123,15 @@
 
 /* ── Big time display ───────────────────────────────────────────── */
 .wc-time {
-	font-size: 2.05em;
+	font-size: clamp(2rem, 10cqi, 4.1em);
 	font-weight: 700;
 	letter-spacing: 0.03em;
 	color: var(--color-accent);
 	line-height: 1.15;
 	font-variant-numeric: tabular-nums;
 	font-feature-settings: "tnum";
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 /* ── Date row ───────────────────────────────────────────────────── */
@@ -137,6 +140,9 @@
 	color: var(--text-muted);
 	margin-bottom: 4px;
 	text-transform: capitalize;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /* ── Work hours + status ────────────────────────────────────────── */
@@ -154,12 +160,14 @@
 	font-size: var(--font-ui-small);
 	color: var(--text-muted);
 	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
 }
 
 .wc-status {
 	font-size: var(--font-ui-small);
 	font-weight: 500;
 	transition: color 0.3s;
+	margin-top: 4px;
 }
 
 .wc-status.wc-on  { color: #22c55e; } /* зелёный — работает */
@@ -295,4 +303,28 @@
 	line-height: 1;
 	opacity: 0.65;
 	cursor: default;
+}
+
+/* ── Responsive: narrow container ──────────────────────────────── */
+@container (max-width: 260px) {
+	.wc-card {
+		padding: 7px 10px 9px 30px;
+	}
+	.wc-work {
+		margin-top: 5px;
+		padding-top: 5px;
+		gap: 5px;
+	}
+	.wc-status {
+		margin-top: 2px;
+	}
+}
+
+@container (max-width: 200px) {
+	.wc-card {
+		padding: 5px 8px 7px 26px;
+	}
+	.wc-root {
+		padding: 6px 4px 12px;
+	}
 }
