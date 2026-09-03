@@ -57,14 +57,16 @@ npm run check        # Полная проверка: lint → typecheck → tes
 | Файл | Назначение |
 |------|-----------|
 | `main.ts` | Точка входа плагина (Modal, View, SettingsTab, Plugin) |
-| `helpers.ts` | Чистые утилитарные функции для работы со временем |
+| `helpers.ts` | Чистые утилитарные функции для работы со временем и списками |
+| `notifications.ts` | Менеджер и сервис уведомлений (NotificationManager), изолированный от UI |
+| `timezones.ts` | Каталог часовых поясов и вспомогательные функции локализации меток |
 | `i18n.ts` | Система локализации (ru/en) |
 | `styles.css` | Стили виджета |
 | `manifest.json` | Метаданные плагина Obsidian |
 | `esbuild.config.mjs` | Конфигурация сборщика (esbuild) |
 | `vitest.config.ts` | Конфигурация тестового фреймворка (Vitest) |
 | `.eslintrc.json` | Конфигурация ESLint со строжайшими правилами |
-| `__tests__/` | Unit-тесты (36 тестов, Vitest) |
+| `__tests__/` | Unit-тесты (77 тестов, Vitest) |
 | `dist/` | Выходная папка сборки (main.js, manifest.json, styles.css) |
 
 ## Линтер и статанализ

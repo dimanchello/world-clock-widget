@@ -1,7 +1,7 @@
 {
 	"id": "world-clock-widget",
 	"name": "World Clock Widget",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"minAppVersion": "1.0.0",
 	"description": "World clocks widget: shows colleagues' time in different timezones, work hours, and availability status.",
 	"author": "Dimanchello",
